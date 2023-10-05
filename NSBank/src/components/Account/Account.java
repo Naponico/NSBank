@@ -1,11 +1,12 @@
 package components.Account;
 
 import components.Client;
+import components.Flow.*;
 
 public abstract class Account {
 	//1.2.1
 	protected String label;
-	protected  double balance;
+	protected  double balance=0;
 	protected static int  numberOfAccount;
 	protected int accountNumber;
 	protected Client client;
@@ -31,8 +32,28 @@ public abstract class Account {
 		return balance;
 	}
 	//1.2.1
-	public void setBalance(double amount) {
-		this.balance = amount;
+	public void setBalance(Flow flow) {
+		if(flow instanceof Credit) {
+			this.balance+= flow.getAmount();
+		}
+		else if( flow instanceof Debit) {
+			this.balance-=flow.getAmount();
+		}
+		else if(flow instanceof Transfert) {
+			try {
+				if(flow.getClass().getMethod("getCurrentAccountNumber") != null) {
+					if(((Transfert) flow).getTargetAccountNumber()==this.accountNumber) {
+						this.balance+=flow.getAmount();
+					}
+					else if(((Transfert) flow).getCurrentAccountNumber()==this.accountNumber) {
+						this.balance-=flow.getAmount();
+					}
+				}
+				
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	//1.2.1
 	public int getAccountNumber() {

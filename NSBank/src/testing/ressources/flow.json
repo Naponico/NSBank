@@ -1,0 +1,32 @@
+{
+     "Flows":[
+          {
+               "type":"Debit",
+               "comment":"DEBIT FROM JSON",
+               "identifier":"0",
+               "amount":"1500",
+               "target":"1",
+               "effect":"false",
+               "date":"02/02/2023"
+          },
+          {
+              "type":"Credit",
+               "comment":"CREDIT FROM JSON",
+               "identifier":"0",
+               "amount":"50000",
+               "target":"2",
+               "effect":"false",
+               "date":"06/02/2023"
+          },
+          {
+              "type":"Transfert",
+               "comment":"TRANSFERT FROM JSON",
+               "identifier":"0",
+               "amount":"1800",
+               "target":"3",
+               "from":"2",
+               "effect":"false",
+               "date":"08/02/2023"
+          }
+     ]
+}

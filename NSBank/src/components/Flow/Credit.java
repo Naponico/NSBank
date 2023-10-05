@@ -1,12 +1,16 @@
 package components.Flow;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Credit extends Flow {
 
-	protected Credit(String comment, int identifier, double amount, int targetAccountNumber, boolean effect,
-			Date dateOfFlow) {
+	public Credit(String comment, int identifier, double amount, int targetAccountNumber, boolean effect,
+			LocalDate dateOfFlow) {
 		super(comment, identifier, amount, targetAccountNumber, effect, dateOfFlow);
 	}
 
+	@Override
+	public String toString() {
+		return "Credit a compte nº "+super.getTargetAccountNumber()+" de : "+super.getAmount()+"€ effectuer le "+super.getDateOfFlow();
+	}
 }

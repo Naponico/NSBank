@@ -1,12 +1,16 @@
 package components.Flow;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Debit extends Flow{
 
-	protected Debit(String comment, int identifier, double amount, int targetAccountNumber, boolean effect,
-			Date dateOfFlow) {
+	public Debit(String comment, int identifier, double amount, int targetAccountNumber, boolean effect,
+			LocalDate dateOfFlow) {
 		super(comment, identifier, amount, targetAccountNumber, effect, dateOfFlow);
 	}
-
+	
+	@Override
+	public String toString() {
+		return "Debit de  compte nº "+super.getTargetAccountNumber()+" de : "+super.getAmount()+"€ effectuer le "+super.getDateOfFlow() ;
+	}
 }

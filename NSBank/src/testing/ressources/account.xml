@@ -1,0 +1,18 @@
+<accounts>
+    <account>
+        <type>Current</type>
+        <label> Current account from XML </label>
+    </account>
+    <account>
+        <type>Current</type>
+        <label> Current account2 from XML </label>
+    </account>
+    <account>
+        <type>Saving</type>
+        <label> Saving account from XML </label>
+    </account>
+    <account>
+        <type>Saving</type>
+        <label> Saving account2 from XML </label>
+    </account>
+</accounts>

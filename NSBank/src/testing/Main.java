@@ -1,11 +1,9 @@
 package testing;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +18,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.time.format.DateTimeFormatter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import javax.print.DocFlavor.READER;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import components.*;
 import components.Account.*;
@@ -33,27 +37,33 @@ public class Main {
 	private static Account[] comptes;
 	private static Hashtable<Integer,Account> hashtable;
 	private static Flow[] flows;
-	
-	//1.1.2
+
 	public static void main(String[] args) {
-		clients=fillClients(5);
-		//showClients(clients);
-		
-		comptes=fillAccounts(clients);
-		//showAccount(comptes);
-		
-//		comptes[8].setBalance(150);
-//		comptes[5].setBalance(3500);
-		hashtable=fillHashtable(comptes);
+		//1.1
+//		clients=fillClients(5);
+//		showClients(clients);
+//		
+		//1.2.
+//		comptes=fillAccounts(clients);
+//		showAccount(comptes);
+//		
+		//1.3.1
+//		hashtable=fillHashtable(comptes);
 //		showHashTable(hashtable);
+//		
+		//1.3.4
+//		flows=fillFlowTable();
+//		showFlowTable(flows);
+//		updateAccountFromFlow(flows,hashtable);
+//		
+		//2.1
+//		flows=createFlowsArrayFromJson();
+//		showFlowTable(flows);
 		
-		//flows=fillFlowTable();
-		//showFlowTable(flows);
-		//updateAccountFromFlow(flows,hashtable);
-		
-		flows=createFlowsArrayFromJson();
-		showFlowTable(flows);
-		
+		//2.2
+//		comptes=loadAndReadXMLToAccountArray();
+//		hashtable=fillHashtable(comptes);
+//		showHashTable(hashtable);
 	}
 
 	//1.1.2
@@ -90,7 +100,7 @@ public class Main {
 		stream.forEach(System.out::println);
 	}
 
-	
+	//1.3.1
 	public static Hashtable<Integer,Account> fillHashtable(Account[] comptes){
 		Hashtable<Integer,Account> returnHashTable=new Hashtable<Integer,Account>();
 		for(int i =0;i<comptes.length;i++){
@@ -98,7 +108,7 @@ public class Main {
 		}
 		return returnHashTable;
 	}
-	
+	//1.3.1
 	public static void showHashTable(Hashtable<Integer,Account> hashtable) {
 		Set<Map.Entry<Integer,Account>> entries=hashtable.entrySet();
 		
@@ -111,7 +121,7 @@ public class Main {
 	        }}).forEach(System.out::println);
 	}
 	
-	
+	//1.3.4
 	public static Flow[] fillFlowTable(){
 		LocalDate today= LocalDate.now();
 		Flow[] returnFlow=new Flow[2+comptes.length];
@@ -132,13 +142,13 @@ public class Main {
 		returnFlow[currentFlow]=new Transfert("Transfert du compte n1 au compte n2", currentFlow, 50, comptes[0].getAccountNumber(), false, today.plusDays(2), comptes[1].getAccountNumber());
 		return returnFlow;
 	}
-	
+	//1.3.4
 	public static void showFlowTable(Flow[] flows){
 		Stream<Flow> stream=Arrays.stream(flows);
 		stream.forEach(System.out::println);
 	}
 	
-	
+	//1.3.5
 	public static void updateAccountFromFlow(Flow[] flows,Hashtable hashtable){
 		for(int i=0;i<flows.length;i++){
 			Account compte =(Account) hashtable.get(flows[i].getTargetAccountNumber());
@@ -157,7 +167,7 @@ public class Main {
 		showHashTable(hashtable);
 	}
 	
-	//1.3.4
+	//2.1
 	public static Flow[] createFlowsArrayFromJson() {
 			List<String> listOfJsonObject=loadAndReturnListOfJsonArray();
 			Flow[] flows=new Flow[listOfJsonObject.size()];
@@ -188,7 +198,7 @@ public class Main {
 			return flows;
 	}
 	
-	//1.3.4
+	//2.1
 	public static Flow flowFromJson(Hashtable<String,String> hash){
 		Flow returnFlow=null;
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
@@ -213,7 +223,7 @@ public class Main {
 		return returnFlow;
 	}
 	
-	//1.3.4
+	//2.1
 	public static List<String> loadAndReturnListOfJsonArray(){
 		Path path=FileSystems.getDefault().getPath("src","testing","ressources","flow.json");
 		try {
@@ -233,7 +243,57 @@ public class Main {
 		}
 		return new ArrayList<String>();
 	}
+	//2.2
+	public static Account[] loadAndReadXMLToAccountArray(){
+		Path path=FileSystems.getDefault().getPath("src","testing","ressources","account.xml");
+		Account[] accounts=new Account[0];
+		try {
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			try {
+				Document doc = builder.parse(path.toString());
+				doc.getDocumentElement().normalize();
+				NodeList nodes=doc.getElementsByTagName("account");
+				
+				Predicate<Node> predi = u->(u.getNodeName().contains("#"));
+				accounts=new Account[nodes.getLength()];
+				Hashtable<String,String> hash = new Hashtable<String,String>();
+				
+				int current=0;
+				for(int u=0;u<nodes.getLength();u++) {
+					for(int i=0;i<nodes.item(u).getChildNodes().getLength();i++) {
+						Node CurrentNode = nodes.item(u).getChildNodes().item(i);
+						if(!predi.test(CurrentNode)) {
+							hash.put(CurrentNode.getNodeName()+current,CurrentNode.getTextContent());
+						}
+						
+					}
+					current++;
+				}
+				for(int i=0;i<current;i++){
+					switch(hash.get("type"+i)) {
+					case "Saving":
+						accounts[i] = new SavingsAccount(hash.get("label"+i),new Client("name"+i,"firstname"+i));
+						break;
+						
+					case "Current":
+						accounts[i] = new CurrentAccount(hash.get("label"+i),new Client("name"+i,"firstname"+i));
+						break;
+					}
+				}
+				return accounts;
+				
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		return accounts;
+	}
 }
+
 
 
 
